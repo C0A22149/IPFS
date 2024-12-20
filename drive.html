@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google Drive Clone</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <!-- サイドバー -->
+    <aside class="sidebar">
+      <div class="logo">Drive</div>
+      <nav class="menu">
+        <a href="#" class="menu-item">Default Directory</a>
+      </nav>
+    </aside>
+
+    <!-- メインエリア -->
+    <main class="main-content">
+      <!-- ヘッダー -->
+      <header class="header">
+        <input type="text" class="search-bar" placeholder="Search in Drive">
+        <div class="profile">
+          <img src="https://via.placeholder.com/40" alt="Profile" class="profile-pic">
+        </div>
+      </header>
+
+      <!-- ファイル表示エリア -->
+      <div class="file-area" id="files">
+        <button class="file-card" id="abc">
+          <div class="file-icon">📁</div>
+          <div class="file-name">abc</div>
+        </button>
+        <button class="file-card" id="def">
+          <div class="file-icon">📁</div>
+          <div class="file-name">def</div>
+        </button>
+        <button class="file-card" id="default_text">
+          <div class="file-icon">📄</div>
+          <div class="file-name" id="output">Default File</div>
+        </button>
+      </div>
+    </main>
+  </div>
+  <script>
+    const { ipcRenderer } = require('electron');
+    const files = document.getElementById('files');
+    let abc = document.getElementById('abc');
+    let def = document.getElementById('def');
+    let Default_text = document.getElementById('default_text');
+    let file_list = [];
+
+    // ボタンがクリックされたときの処理
+    document.getElementById('abc').addEventListener('click', () => {
+      
+        const command = `curl -X POST "http://127.0.0.1:5001/api/v0/dht/getbyattrs?tags=dir_d/abc&showall=true;"`; //実行したいコマンド
+        // メインプロセスにコマンドを送信
+        ipcRenderer.send('run-command2', command);
+    });
+
+    // メインプロセスからコマンド実行結果を受け取る
+    ipcRenderer.on('command-result2', (event, result) => {
+        // 一致する部分をすべて取得
+        const data = JSON.parse(result);
+        files.innerHTML = "";
+        // filenameとdirを動的に取得して表示
+        data.forEach(item => {
+            const button = document.createElement('input');
+            button.type = 'button';
+            button.value = `${item.filename}.${item.extension}`; // ボタンのテキスト
+            button.onclick = function () {
+              alert('ボタンがクリックされました！');
+            };
+            document.getElementById("files").appendChild(button);
+        });
+    });
+  </script>
+</body>
+</html>

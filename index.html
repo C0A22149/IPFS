@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ファイル更新とバッチ起動</title>
+</head>
+<body>
+    <h1>テキスト挿入とバッチ実行</h1>
+    <form id="insertForm">
+        <label for="content">挿入するテキスト:</label><br>
+        <input id="id" type="text" onchange="intext()" placeholder="管理者のID"><br>
+        <input id="peerid" type="text" onchange="intext()" placeholder="管理者のPeerID"><br>
+        <textarea id="content" rows="4" cols="50">ipfs.endpoint=/ip4/（⑤の値）/tcp/4001/ipfs/（⑥の値）</textarea><br>
+        <button type="button" onclick="insertAndRun()">ファイル更新 & バッチ実行</button>
+    </form>
+    <script>
+        const { ipcRenderer } = require('electron');
+        let readerID = document.getElementById('id');
+        let readerPeerID = document.getElementById('peerid');
+        
+        function intext(){
+            document.getElementById('content').value = `ipfs.endpoint=/ip4/${readerID.value}
+            /tcp/4001/ipfs/${readerPeerID.value}`;
+        }
+
+        function insertAndRun() {
+            const content = document.getElementById('content').value;
+            ipcRenderer.send('insert-and-run', content);
+        }
+    </script>
+</body>
+</html>

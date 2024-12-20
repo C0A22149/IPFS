@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>コマンド実行結果の取得</title>
+</head>
+<body>
+    <h1>IPFSコマンド</h1>
+    ファイル送信</br>
+    送りたいファイルを「project_IPFS」ファイルの下に置いてください</br>
+    <input type="file" id="freeFile">
+    <input type="text" id="fileName">
+
+    <!-- ボタンを作成 -->
+    <button id="sendCommandBtn">ファイルを送る</button></br>
+
+    </br>
+    </br>
+    </br>
+    ファイル受信</br>
+    <input type="text" id="cid">
+    <button id="sendCommandBtn2">ファイルを受ける</button></br>
+
+
+    <h3>実行結果:</h3>
+    <pre id="output"></pre>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+        let sFN = document.getElementById('fileName');
+        let reception = document.getElementById('cid');
+
+        // ボタンがクリックされたときの処理
+        document.getElementById('sendCommandBtn').addEventListener('click', () => {
+            const command = `curl -X POST "http://127.0.0.1:5001/api/v0/dht/add?file=${sFN.value}"`; // 実行したいコマンド
+            // メインプロセスにコマンドを送信
+            ipcRenderer.send('run-command', command);
+        });
+        // ボタンがクリックされたときの処理
+        document.getElementById('sendCommandBtn2').addEventListener('click', () => {
+            const command = `curl -X POST "http://127.0.0.1:5001/api/v0/dht/getvalue?cid=${reception.value}"`; // 実行したいコマンド
+            // メインプロセスにコマンドを送信
+            ipcRenderer.send('run-command', command);
+        });
+
+        // メインプロセスからコマンド実行結果を受け取る
+        ipcRenderer.on('command-result', (event, result) => {
+            // 実行結果を画面に表示
+            document.getElementById('output').textContent += result + "\n";
+        });
+    </script>
+</body>
+</html>
